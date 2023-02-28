@@ -40,10 +40,12 @@ public class FieldUnit implements IFieldUnit {
     protected int expected = 0;
     protected int counter = 0;
     protected List<MessageInfo> receivedMessages;
+    protected List<Float> movingAverages;
 
 
     public FieldUnit () {
         this.receivedMessages = new ArrayList<>();
+        this.movingAverages = new ArrayList<>();
     }
 
     @Override
@@ -55,7 +57,23 @@ public class FieldUnit implements IFieldUnit {
     public void sMovingAverage (int k) {
         
         /* TODO: Compute SMA and store values in a class attribute */
-
+        try {
+            for(int i = 0; i < this.expected; i++) {
+                if(i < k) {
+                    this.movingAverages.add(receivedMessages.get(i).getMessage());
+                }
+                else {
+                    float sum = 0;
+                    for(int j = 0; j < k; j++) {
+                        // reconsider at some point
+                        sum += receivedMessages.get(i-j).getMessage();
+                    }
+                    this.movingAverages.add(sum/k);
+                }
+            }
+        } catch (UnsupportedOperationException e) {
+            System.err.println("UnsupportedOperationException => " + e.getMessage());
+        }
 
     }
 
