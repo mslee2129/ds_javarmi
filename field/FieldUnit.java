@@ -10,6 +10,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -36,21 +37,25 @@ public class FieldUnit implements IFieldUnit {
 
     private static final int buffsize = 2048;
     private int timeout = 50000;
+    protected int expected = 0;
+    protected int counter = 0;
+    protected List<MessageInfo> receivedMessages;
 
 
     public FieldUnit () {
-        /* TODO: Initialise data structures */
+        this.receivedMessages = new ArrayList<>();
     }
 
     @Override
     public void addMessage (MessageInfo msg) {
-      /* TODO: Save received message in receivedMessages */
-
+        this.receivedMessages.add(msg);
     }
 
     @Override
     public void sMovingAverage (int k) {
+        
         /* TODO: Compute SMA and store values in a class attribute */
+
 
     }
 
@@ -58,31 +63,59 @@ public class FieldUnit implements IFieldUnit {
 
     @Override
     public void receiveMeasures(int port, int timeout) throws SocketException {
+        try {
+            // create new socket
+            DatagramSocket socket = new DatagramSocket(port);
+            System.out.println("[Field Unit] Listening on port: " + port);
 
-        this.timeout = timeout;
+            // set timeout
+            this.timeout = timeout;
+            socket.setSoTimeout(this.timeout);
+    
+            // runs until all package is received
+            boolean listen = true;
 
-        /* TODO: Create UDP socket and bind to local port 'port' */
+            while (listen) {
+                // create buffer
+                byte[] buffer = new byte[buffsize];
 
+                // create new datagram packet
+                DatagramPacket receivePacket = new DatagramPacket(
+                        buffer, buffer.length);
 
-        boolean listen = true;
+                // receive packet in socket
+                socket.receive(receivePacket);
+                String messageString = new String(receivePacket.getData());
 
+                MessageInfo message = new MessageInfo(messageString);
 
-        System.out.println("[Field Unit] Listening on port: " + port);
+                // if first message, set expected to total
+                if(expected == 0) { expected = message.getTotalMessages(); }
+                counter++; // increment counter
 
-        while (listen) {
+                System.out.printf("[UDP Controller] Message %d out of %d " +
+                                "received. Value = %f\n", message.getMessageNum(),
+                                this.expected, message.getMessage());
 
-            /* TODO: Receive until all messages in the transmission (msgTot) have been received or
-                until there is nothing more to be received */
+                addMessage(message); // save message
+                
+                // if count reaches total, break
+                if(counter >= expected) { break; }
+            }
+            socket.close();
+            printStats();
 
-            /* TODO: If this is the first message, initialise the receive data structure before storing it. */
-
-            /* TODO: Store the message */
-
-            /* TODO: Keep listening UNTIL done with receiving  */
-
+        } catch (UnknownHostException e) {
+            System.err.println("UnknownHostException => " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.err.println("IllegalArgumentException => " + e.getMessage());
+        } catch (SocketException e) {
+            System.err.println("SocketException => " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("IOException => " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Exception => " + e.getMessage());
         }
-
-        /* TODO: Close socket  */
 
     }
 
@@ -140,14 +173,31 @@ public class FieldUnit implements IFieldUnit {
 
     @Override
     public void printStats () {
-      /* TODO: Find out how many messages were missing */
+        System.out.printf("Total missing messages %d out of %d \n", 
+        this.expected - this.counter, this.expected);
 
-      /* TODO: Print stats (i.e. how many message missing?
-       * do we know their sequence number? etc.) */
+        ArrayList<Integer> unreceivedMessages = new ArrayList<Integer>();
+        for(int j = 1; j <= this.expected; j++){
+            Boolean found = false;
+            for(int i = 0; i < this.receivedMessages.size(); i++){
+                if(this.receivedMessages.get(i).getMessageNum() == j){
+                    found = true;
+                    break;
+                }
+            }
+        
+            if(!found){
+                unreceivedMessages.add(j); 
+            }    
+        }
 
-      /* TODO: Now re-initialise data structures for next time */
+        System.out.println("The messages that were lost are the following: " + 
+                unreceivedMessages);
+        System.out.println("===============================");
 
+        /* Re-initialise data structures for next time */
+        this.expected = 0;
+        this.counter = 0;
+        this.receivedMessages = new ArrayList<>();
     }
-
-
 }

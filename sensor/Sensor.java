@@ -7,6 +7,7 @@ import common.MessageInfo;
 import java.io.IOException;
 import java.net.*;
 import java.util.Random;
+import java.nio.charset.StandardCharsets;
 
  /* You can add/change/delete class attributes if you think it would be
   * appropriate.
@@ -31,21 +32,28 @@ public class Sensor implements ISensor {
      */
     private static final int buffsize = 2048;
 
+    protected int port;
+    protected String address;
+    protected int totMsg;
+
     public Sensor(String address, int port, int totMsg) {
-        /* TODO: Build Sensor Object */
+        this.address = address;
+        this.port = port;
+        this.totMsg = totMsg;
+        this.measurement = 0;
     }
 
-    @Override
+    @Override  // TO DO THROW THE INTERRUPTED EXCEPTION
     public void run (int N) throws InterruptedException {
-        /* TODO: Send N measurements */
+        for(int i = 1; i <= N; i++){
+            this.measurement = getMeasurement();
+            MessageInfo msg = new MessageInfo(N, i, this.measurement);
+            sendMessage(this.address, this.port, msg);
 
-        /* Hint: You can pick ONE measurement by calling
-         *
-         * float measurement = this.getMeasurement();
-         */
-
-         /* TODO: Call sendMessage() to send the msg to destination */
-
+            // Print update
+            System.out.printf("[Sensor] Sending message %d out of %d." +
+                            " Measure = %f \n", i, N, msg.getMessage());
+        }
     }
 
     public static void main (String[] args) {
@@ -59,22 +67,49 @@ public class Sensor implements ISensor {
         int port = Integer.parseInt(args[1]);
         int totMsg = Integer.parseInt(args[2]);
 
-        /* TODO: Call constructor of sensor to build Sensor object*/
+        /* Start new sensor */
+        Sensor sensor =  new Sensor(address, port, totMsg);
 
-        /* TODO: Use Run to send the messages */
-
+        /* Run Sensor */
+        try{
+            sensor.run(1000);
+        } catch(InterruptedException e){
+            System.err.println("InterruptedException => " + e.getMessage());
+        }
     }
 
     @Override
-    public void sendMessage (String address, int port, MessageInfo msg) {
-        String toSend = msg.toString();
+    public void sendMessage (String dstAddress, int dstPort, MessageInfo msg) {
+        try {
+            // create new socket
+            DatagramSocket socket = new DatagramSocket();
 
-        /* TODO: Build destination address object */
+            // save message to buffer
+            byte[] message = msg.toString().getBytes(StandardCharsets.UTF_8);
 
-        /* TODO: Build datagram packet to send */
+            // get address and port
+            InetAddress address = InetAddress.getByName(dstAddress);
 
-        /* TODO: Send packet */
+            // build datagram packet from message
+            DatagramPacket packet = new DatagramPacket(message, message.length,
+                    address, dstPort);
 
+            // send packet
+            socket.send(packet);
+
+            // close socket
+	        socket.close();
+        } catch (NumberFormatException e) {
+            System.err.println("NumberFormatException => " + e.getMessage());
+        } catch (UnknownHostException e) {
+            System.err.println("UnknownHostException => " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.err.println("IllegalArgumentException => " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("IOException => " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Exception => " + e.getMessage());
+        }
     }
 
     @Override
