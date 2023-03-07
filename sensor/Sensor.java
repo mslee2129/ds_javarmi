@@ -72,7 +72,7 @@ public class Sensor implements ISensor {
 
         /* Run Sensor */
         try{
-            sensor.run(1000);
+            sensor.run(totMsg);
         } catch(InterruptedException e){
             System.err.println("InterruptedException => " + e.getMessage());
         }
