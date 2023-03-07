@@ -5,6 +5,7 @@ package field;
 import centralserver.ICentralServer;
 import common.MessageInfo;
 import field.ILocationSensor;
+import field.LocationSensor;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -184,8 +185,9 @@ public class FieldUnit implements IFieldUnit {
             System.err.println("BINDED! ");
 
             /* Send pointer to LocationSensor to RMI Server */
-            ILocationSensor loc = new LocationSensor();
-            this.central_server.setLocationSensor(loc);
+            LocationSensor loc = new LocationSensor();
+            ILocationSensor iloc = (ILocationSensor) UnicastRemoteObject.exportObject(loc, 1099);
+            this.central_server.setLocationSensor(iloc);
             
             System.err.println("LocationSet! ");
 
