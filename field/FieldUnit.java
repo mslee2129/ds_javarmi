@@ -186,7 +186,9 @@ public class FieldUnit implements IFieldUnit {
             /* Send pointer to LocationSensor to RMI Server */
             LocationSensor loc = new LocationSensor();
             this.central_server.setLocationSensor(loc);
-        
+            
+            System.err.println("LocationSet! ");
+
         } catch (Exception e) {
             System.err.println("Exception => " + e.getMessage());
         }

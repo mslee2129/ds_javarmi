@@ -54,23 +54,9 @@ public class CentralServer implements ICentralServer {
             } catch(Exception e){
                 System.err.println("Ah shit => " + e.getMessage());
             }
-
-            /* Create (or Locate) Registry */
-            // Registry registry = LocateRegistry.createRegistry(9999);
-            /* Bind to Registry */        
-            // registry.rebind("CentralServer", cs);
             
             // Central server readt
             System.out.println("Central Server ready"); 
-
-            // try{
-            // Thread.sleep(10000);
-            // } catch(Exception e){
-            //     System.err.println("I fucked up");
-            // }
-            
-            // Set Location Sensor
-            cs.setLocationSensor(cs.locationSensor);
     
         } catch (AccessException e) {
             System.err.println("AccessException => " + e.getMessage());
