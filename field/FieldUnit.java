@@ -176,11 +176,16 @@ public class FieldUnit implements IFieldUnit {
     public void initRMI (String address) {
         try {
             System.err.println("??????????????????????");
+            String ad = new String("rmi://"+address+"/CentralServer");
             Registry registry = LocateRegistry.getRegistry(address, this.port);
+
             System.err.println("CCCCCCC");
+            
             // Bind to RMIServer 
             this.central_server = (ICentralServer) registry.lookup("CentralServer");
+            
             System.err.println("AAAAAAAAAAAAAAAA");
+            
             /* Send pointer to LocationSensor to RMI Server */
             LocationSensor loc = new LocationSensor();
             this.central_server.setLocationSensor(loc);

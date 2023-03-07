@@ -2,8 +2,11 @@ package centralserver;
 
 import common.*;
 import field.ILocationSensor;
+
+import java.net.MalformedURLException;
 import java.rmi.AccessException;
 import java.rmi.AlreadyBoundException;
+import java.rmi.Naming;
 /*
  * Updated on Feb 2023
  */
@@ -13,6 +16,8 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.text.html.CSS;
 
  /* You can add/change/delete class attributes if you think it would be
   * appropriate.
@@ -45,19 +50,26 @@ public class CentralServer implements ICentralServer {
 
             /* Create (or Locate) Registry */
             Registry registry = LocateRegistry.createRegistry(9999);
+            Naming.rebind("CentralServer", cs);
+            
             ICentralServer stub = (ICentralServer) UnicastRemoteObject.exportObject(cs, 9999);
+
             System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            
             /* Bind to Registry */
-            registry.bind("CentralServer", stub);
-            System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            
+            registry.rebind("CentralServer", stub);
+            
+            System.err.println("!!!!xxxxxxxx!!!!!!!!");
+            
             // Central server readt
             System.out.println("Central Server ready"); 
 
             // Set Location Sensor
             cs.setLocationSensor(cs.locationSensor);
         
-        } catch(AlreadyBoundException e){
-            System.err.println("AlreadyBoundException => " + e.getMessage());
+        } catch(MalformedURLException e){
+            System.err.println("MalformedURLException  => " + e.getMessage());
         } catch (AccessException e) {
             System.err.println("AccessException => " + e.getMessage());
         } catch (RemoteException e) {
