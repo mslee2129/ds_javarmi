@@ -27,7 +27,7 @@ import javax.swing.text.html.CSS;
   * CHANGE the provided interface.
   */
 
-/* TODO extend appropriate classes and implement the appropriate interfaces */
+/* extend appropriate classes and implement the appropriate interfaces */
 public class CentralServer implements ICentralServer {
 
     private ILocationSensor locationSensor;
@@ -50,8 +50,6 @@ public class CentralServer implements ICentralServer {
 
             /* Create (or Locate) Registry */
             Registry registry = LocateRegistry.createRegistry(9999);
-
-            // ICentralServer stub = (ICentralServer) UnicastRemoteObject.exportObject(cs, 9999);
             
             /* Bind to Registry */        
             registry.rebind("CentralServer", cs);
@@ -59,6 +57,11 @@ public class CentralServer implements ICentralServer {
             // Central server readt
             System.out.println("Central Server ready"); 
 
+            try{
+            Thread.sleep(10000);
+            } catch(Exception e){
+                System.err.println("I fucked up");
+            }
             // Set Location Sensor
             cs.setLocationSensor(cs.locationSensor);
     
