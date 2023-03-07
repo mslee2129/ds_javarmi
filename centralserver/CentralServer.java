@@ -47,11 +47,17 @@ public class CentralServer implements ICentralServer {
         try{
             CentralServer cs = new CentralServer();
 
-            /* Create (or Locate) Registry */
-            Registry registry = LocateRegistry.createRegistry(9999);
+            LocateRegistry.createRegistry(9999);
+            try{
+            Naming.rebind("rmi://localhost:9999/CentralServer", cs);
+            } catch(Exception e){
+                System.err.println("Ah shit => " + e.getMessage());
+            }
             
+            /* Create (or Locate) Registry */
+            // Registry registry = LocateRegistry.createRegistry(9999);
             /* Bind to Registry */        
-            registry.rebind("CentralServer", cs);
+            // registry.rebind("CentralServer", cs);
             
             // Central server readt
             System.out.println("Central Server ready"); 
