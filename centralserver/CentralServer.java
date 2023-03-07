@@ -47,7 +47,8 @@ public class CentralServer implements ICentralServer {
         try{
             CentralServer cs = new CentralServer();
             ICentralServer stub = (ICentralServer) UnicastRemoteObject.exportObject(cs, 1099);
-            LocateRegistry.createRegistry(1099);
+            Registry reg = LocateRegistry.createRegistry(1099);
+            
             try{
             Naming.rebind("rmi://localhost:1099/CentralServer", stub);
             } catch(Exception e){
@@ -62,11 +63,12 @@ public class CentralServer implements ICentralServer {
             // Central server readt
             System.out.println("Central Server ready"); 
 
-            try{
-            Thread.sleep(10000);
-            } catch(Exception e){
-                System.err.println("I fucked up");
-            }
+            // try{
+            // Thread.sleep(10000);
+            // } catch(Exception e){
+            //     System.err.println("I fucked up");
+            // }
+            
             // Set Location Sensor
             cs.setLocationSensor(cs.locationSensor);
     
