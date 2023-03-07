@@ -46,14 +46,14 @@ public class CentralServer implements ICentralServer {
     public static void main (String[] args) throws RemoteException {
         try{
             CentralServer cs = new CentralServer();
-
+            ICentralServer stub = (ICentralServer) UnicastRemoteObject.exportObject(cs, 9999);
             LocateRegistry.createRegistry(9999);
             try{
-            Naming.rebind("rmi://localhost:9999/CentralServer", cs);
+            Naming.rebind("rmi://localhost:9999/CentralServer", stub);
             } catch(Exception e){
                 System.err.println("Ah shit => " + e.getMessage());
             }
-            
+
             /* Create (or Locate) Registry */
             // Registry registry = LocateRegistry.createRegistry(9999);
             /* Bind to Registry */        
