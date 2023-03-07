@@ -48,14 +48,16 @@ public class CentralServer implements ICentralServer {
             ICentralServer stub = (ICentralServer) UnicastRemoteObject.exportObject(cs, 9999);
             System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             /* Bind to Registry */
-            registry.rebind("CentralServer", stub);
-
+            registry.bind("CentralServer", stub);
+            System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             // Central server readt
             System.out.println("Central Server ready"); 
 
             // Set Location Sensor
             cs.setLocationSensor(cs.locationSensor);
         
+        } catch(AlreadyBoundException e){
+            System.err.println("AlreadyBoundException => " + e.getMessage());
         } catch (AccessException e) {
             System.err.println("AccessException => " + e.getMessage());
         } catch (RemoteException e) {
