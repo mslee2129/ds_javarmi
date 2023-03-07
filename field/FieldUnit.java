@@ -176,11 +176,13 @@ public class FieldUnit implements IFieldUnit {
     @Override
     public void initRMI (String address) {
         try {
-            // String rmiUrl = new String("rmi://"+address+":9999/CentralServer");
+            String rmiUrl = new String("rmi://"+address+":1099/CentralServer");
 
             // Bind to RMIServer 
-            this.central_server = (ICentralServer) Naming.lookup("rmi://localhost:9999/CentralServer");
+            this.central_server = (ICentralServer) Naming.lookup(rmiUrl);
             
+            System.err.println("BINDED! ");
+
             /* Send pointer to LocationSensor to RMI Server */
             LocationSensor loc = new LocationSensor();
             this.central_server.setLocationSensor(loc);
