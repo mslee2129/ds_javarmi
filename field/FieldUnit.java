@@ -63,7 +63,7 @@ public class FieldUnit implements IFieldUnit {
 
     @Override
     public void sMovingAverage (int k) {
-        System.out.printf("[Field Unit] Computing SMAs");
+        System.out.println("[Field Unit] Computing SMAs");
 
         /* Compute SMA and store values in a class attribute */
         try {
@@ -166,9 +166,6 @@ public class FieldUnit implements IFieldUnit {
             on Field Unit object */
         field_unit.sMovingAverage(7);
 
-        /* Compute and print stats */
-        field_unit.printStats();
-
         /* Send data to the Central Serve via RMI and
                 wait for incoming transmission again*/
         field_unit.sendAverages();
@@ -189,14 +186,10 @@ public class FieldUnit implements IFieldUnit {
             // Bind to RMIServer 
             this.central_server = (ICentralServer) Naming.lookup(rmiUrl);
             
-            System.err.println("BINDED! ");
-
             /* Send pointer to LocationSensor to RMI Server */
             LocationSensor loc = new LocationSensor();
             ILocationSensor iloc = (ILocationSensor) UnicastRemoteObject.exportObject(loc, 1099);
             this.central_server.setLocationSensor(iloc);
-            
-            System.err.println("LocationSet! ");
 
         } catch (Exception e) {
             System.err.println("Exception => " + e.getMessage());
