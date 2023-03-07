@@ -44,7 +44,7 @@ public class CentralServer implements ICentralServer {
             CentralServer cs = new CentralServer();
 
             /* Create (or Locate) Registry */
-            Registry registry = LocateRegistry.getRegistry(9999);
+            Registry registry = LocateRegistry.createRegistry(9999);
             ICentralServer stub = (ICentralServer) UnicastRemoteObject.exportObject(cs, 9999);
             System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             /* Bind to Registry */
