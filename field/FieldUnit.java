@@ -3,6 +3,7 @@ package field;
  * Updated on Feb 2023
  */
 import centralserver.ICentralServer;
+import centralserver.CentralServer;
 import common.MessageInfo;
 
 import java.io.IOException;
@@ -32,6 +33,7 @@ import java.rmi.server.UnicastRemoteObject;
 
 public class FieldUnit implements IFieldUnit {
     private ICentralServer central_server;
+    protected Registry registry;
 
     /* Note: Could you discuss in one line of comment what do you think can be
      * an appropriate size for buffsize?
@@ -59,7 +61,7 @@ public class FieldUnit implements IFieldUnit {
     @Override
     public void sMovingAverage (int k) {
         
-        /* TODO: Compute SMA and store values in a class attribute */
+        /* Compute SMA and store values in a class attribute */
         try {
             for(int i = 0; i < this.expected; i++) {
                 if(i < k) {
@@ -77,7 +79,6 @@ public class FieldUnit implements IFieldUnit {
         } catch (UnsupportedOperationException e) {
             System.err.println("UnsupportedOperationException => " + e.getMessage());
         }
-
     }
 
 
@@ -145,43 +146,56 @@ public class FieldUnit implements IFieldUnit {
             System.out.println("Usage: ./fieldunit.sh <UDP rcv port> <RMI server HostName/IPAddress>");
             return;
         }
-        /* TODO: Parse arguments */
+        /* Parse arguments */
         int port = Integer.parseInt(args[0]);
         String address = args[1];
 
-        /* TODO: Construct Field Unit Object */
+        /* Construct Field Unit Object */
         FieldUnit field_unit = new FieldUnit();
 
-        /* TODO: Call initRMI on the Field Unit Object */
+        /* Call initRMI on the Field Unit Object */
         field_unit.initRMI(address);
 
-            /* TODO: Wait for incoming transmission */
+        /* Wait for incoming transmission */
+        field_unit.receiveMeasures(port, field_unit.timeout);
 
-            /* TODO: Compute Averages - call sMovingAverage()
-                on Field Unit object */
+        /* Compute Averages - call sMovingAverage()
+            on Field Unit object */
+        field_unit.sMovingAverage(7);
 
-            /* TODO: Compute and print stats */
+        /* Compute and print stats */
+        field_unit.printStats();
 
-            /* TODO: Send data to the Central Serve via RMI and
-             *        wait for incoming transmission again
-             */
-
+        /* Send data to the Central Serve via RMI and
+                wait for incoming transmission again*/
+        field_unit.sendAverages();
     }
-
 
     @Override
     public void initRMI (String address) {
-        /* TODO: Bind to RMIServer */
-
-
-        /* TODO: Send pointer to LocationSensor to RMI Server */
-
+        /* Bind to RMIServer */
+        try {
+            this.registry = LocateRegistry.getRegistry(9999);
+     
+            /* Send pointer to LocationSensor to RMI Server */
+        } catch (Exception e) {
+            System.err.println("Exception => " + e.getMessage());
+        }
     }
 
     @Override
     public void sendAverages () {
-        /* TODO: Attempt to send messages the specified number of times */
+        /* Attempt to send messages the specified number of times */
+        try {
+            this.central_server = (ICentralServer) this.registry.lookup("CentralServer"); // how to get a pointer
 
+            for(int i = 0; i < this.expected; i++){
+                MessageInfo msg = new MessageInfo(this.movingAverages.size(), i, this.movingAverages.get(i));
+                central_server.receiveMsg(msg);
+            }
+        } catch (Exception e) {
+            System.err.println("Exception => " + e.getMessage());
+        }
     }
 
     @Override

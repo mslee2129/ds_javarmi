@@ -2,6 +2,8 @@ package centralserver;
 
 import common.*;
 import field.ILocationSensor;
+import java.rmi.AccessException;
+import java.rmi.AlreadyBoundException;
 /*
  * Updated on Feb 2023
  */
@@ -21,75 +23,123 @@ import java.util.List;
   */
 
 /* TODO extend appropriate classes and implement the appropriate interfaces */
-public class CentralServer {
+public class CentralServer implements ICentralServer {
 
     private ILocationSensor locationSensor;
+    protected List<MessageInfo> receivedMessages;
+
+    protected int expected = 0;
+    protected int counter = 0;
 
     protected CentralServer () throws RemoteException {
         super();
+        
+        /* Initialise Array receivedMessages */
+        this.receivedMessages = new ArrayList<>();
 
-        /* TODO: Initialise Array receivedMessages */
     }
 
     public static void main (String[] args) throws RemoteException {
-        CentralServer cs = new CentralServer();
+        try{
+            CentralServer cs = new CentralServer();
 
-        /* If you are running the program within an IDE instead of using the
-         * provided bash scripts, you can use the following line to set
-         * the policy file
-         */
+            /* Create (or Locate) Registry */
+            Registry registry = LocateRegistry.getRegistry(9999);
+            CentralServer stub = (CentralServer) UnicastRemoteObject.exportObject(cs, 9999);
 
-        /* System.setProperty("java.security.policy","file:./policy\n"); */
+            /* Bind to Registry */
+            registry.bind("CentralServer", stub);
 
-        /* TODO: Configure Security Manager */
+            // Central server readt
+            System.out.println("Central Server ready"); 
 
-        /* TODO: Create (or Locate) Registry */
-
-        /* TODO: Bind to Registry */
-
-        System.out.println("Central Server is running...");
-
-
+            // Set Location Sensor
+            cs.setLocationSensor(cs.locationSensor);
+        
+        } catch (AlreadyBoundException e) {
+            System.err.println("AlreadyBoundException => " + e.getMessage());
+        } catch (AccessException e) {
+            System.err.println("AccessException => " + e.getMessage());
+        } catch (RemoteException e) {
+            System.err.println("RemoteException => " + e.getMessage());
+        } catch (NullPointerException e) {
+            System.err.println("NullPointerException => " + e.getMessage());
+        }
     }
 
 
     @Override
     public void receiveMsg (MessageInfo msg) {
-        System.out.println("[Central Server] Received message " + (msg.getMessageNum()) + " out of " +
-                msg.getTotalMessages() + ". Measure = " + msg.getMessage());
+        try{
+            //  If first message:, initialise expected
+            if(this.expected == 0) {this.expected = msg.getTotalMessages();}
+            this.counter++; // increment counter
 
+            System.out.println("[Central Server] Received message " + 
+                (msg.getMessageNum()) + " out of " + msg.getTotalMessages() +
+                    ". Measure = " + msg.getMessage());
+                
+            // Save current message 
+            this.receivedMessages.add(msg);
 
-        /* TODO: If this is the first message, reset counter and initialise data structure. */
-
-
-        /* TODO: Save current message */
-
-        /* TODO: If done with receiveing prints stats. */
-
-
+            // If done with receiving prints stats.
+            if(this.expected == msg.getTotalMessages()){
+                this.printStats();
+            }
+        // change exception
+        } catch(Exception e){
+            System.err.println("Exception => " + e.getMessage());
+        }
     }
 
+
     public void printStats() {
-      /* TODO: Find out how many messages were missing */
+        try{
+            /* Find out how many messages were missing */
+            System.err.printf("Total missing messages %d out of %d \n", 
+                            this.expected - this.counter, this.expected);
 
-      /* TODO: Print stats (i.e. how many message missing?
-       * do we know their sequence number? etc.) */
+            /* Print stats (i.e. how many message missing?
+            * do we know their sequence number? etc.) */
+            ArrayList<Integer> unreceivedMessages = new ArrayList<Integer>();
+            for(int j = 1; j <= this.expected; j++){
+                Boolean found = false;
+                for(int i = 0; i < this.receivedMessages.size(); i++){
+                    if(this.receivedMessages.get(i).getMessageNum() == j){
+                        found = true;
+                        break;
+                    }
+                }
+                if(!found){
+                    unreceivedMessages.add(j); 
+                }    
+            }
+            System.err.println("The messages that were lost are the following: " + 
+                            unreceivedMessages);
 
-      /* TODO: Print the location of the Field Unit that sent the messages */
+            /* Print the location of the Field Unit that sent the messages */
+            printLocation();
 
-      /* TODO: Now re-initialise data structures for next time */
-
+            /* Now re-initialise data structures for next time */
+            this.counter = 0;
+            this.expected = 0;
+            this.receivedMessages = new ArrayList<>();
+        } catch(Exception e){
+            System.err.println("Exception => " + e.getMessage());
+        }
     }
 
     @Override
     public void setLocationSensor (ILocationSensor locationSensor) throws RemoteException {
-
-        /* TODO: Set location sensor */
-
-         System.out.println("Location Sensor Set");
+        // Set location sensor
+        this.locationSensor = locationSensor;
+        System.out.println("Location Sensor Set");
     }
 
     public void printLocation() throws RemoteException {
-        /* TODO: Print location on screen from remote reference */
+        // Print location on screen from remote reference
+        System.out.printf("[Field Unit] Current Location: lat = %f long = %f\n", 
+            this.locationSensor.getCurrentLocation().getLatitude(), 
+            this.locationSensor.getCurrentLocation().getLongitude());
     }
 }

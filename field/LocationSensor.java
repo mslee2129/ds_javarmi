@@ -5,11 +5,11 @@ package field;
 import common.Location;
 
 import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
+// import java.rmi.server.UnicastRemoteObject;
 
-/* TODO extend appropriate classes and implement the appropriate interfaces */
+    /* Extend appropriate classes and implement the appropriate interfaces */
 
-public class LocationSensor {
+public class LocationSensor implements ILocationSensor{
     private Location location;
 
     public LocationSensor () throws RemoteException {
