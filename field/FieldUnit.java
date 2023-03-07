@@ -145,15 +145,15 @@ public class FieldUnit implements IFieldUnit {
             System.out.println("Usage: ./fieldunit.sh <UDP rcv port> <RMI server HostName/IPAddress>");
             return;
         }
-
         /* TODO: Parse arguments */
-
+        int port = Integer.parseInt(args[0]);
+        String address = args[1];
 
         /* TODO: Construct Field Unit Object */
+        FieldUnit field_unit = new FieldUnit();
 
         /* TODO: Call initRMI on the Field Unit Object */
-
-
+        field_unit.initRMI(address);
 
             /* TODO: Wait for incoming transmission */
 
@@ -171,26 +171,8 @@ public class FieldUnit implements IFieldUnit {
 
     @Override
     public void initRMI (String address) {
-        /* If you are running the program within an IDE instead of using the
-         * provided bash scripts, you can use the following line to set
-         * the policy file
-         */
-
-        /* System.setProperty("java.security.policy","file:./policy\n"); */
-
         /* TODO: Bind to RMIServer */
-        try {
-            String name = "Compute";
-            FieldUnit engine = new FieldUnit();
-            FieldUnit stub =
-                (FieldUnit) UnicastRemoteObject.exportObject(engine, 0);
-            Registry registry = LocateRegistry.getRegistry();
-            registry.bind(name, stub);
-            System.out.println("FieldUnit bound");
-        } catch (Exception e) {
-            System.err.println("FieldUnit exception:");
-            e.printStackTrace();
-        }
+
 
         /* TODO: Send pointer to LocationSensor to RMI Server */
 
