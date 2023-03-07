@@ -12,6 +12,7 @@ import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -176,13 +177,15 @@ public class FieldUnit implements IFieldUnit {
     public void initRMI (String address) {
         try {
             System.err.println("??????????????????????");
-            String ad = new String("rmi://"+address+"/CentralServer");
-            Registry registry = LocateRegistry.getRegistry(address, this.port);
+
+            String rmiUrl = new String("rmi://"+address+"/CentralServer");
+            // Registry registry = LocateRegistry.getRegistry(address, this.port);
 
             System.err.println("CCCCCCC");
             
             // Bind to RMIServer 
-            this.central_server = (ICentralServer) registry.lookup("CentralServer");
+            this.central_server = (ICentralServer) Naming.lookup(rmiUrl);
+            // this.central_server = (ICentralServer) registry.lookup("CentralServer");
             
             System.err.println("AAAAAAAAAAAAAAAA");
             
