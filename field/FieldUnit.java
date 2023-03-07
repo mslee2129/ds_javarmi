@@ -3,8 +3,8 @@ package field;
  * Updated on Feb 2023
  */
 import centralserver.ICentralServer;
-import centralserver.CentralServer;
 import common.MessageInfo;
+import field.LocationSensor;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -44,6 +44,7 @@ public class FieldUnit implements IFieldUnit {
     private int timeout = 50000;
     protected int expected = 0;
     protected int counter = 0;
+    protected int port;
     protected List<MessageInfo> receivedMessages;
     protected List<Float> movingAverages;
 
@@ -60,7 +61,8 @@ public class FieldUnit implements IFieldUnit {
 
     @Override
     public void sMovingAverage (int k) {
-        
+        System.out.printf("[Field Unit] Computing SMAs");
+
         /* Compute SMA and store values in a class attribute */
         try {
             for(int i = 0; i < this.expected; i++) {
@@ -126,7 +128,6 @@ public class FieldUnit implements IFieldUnit {
             }
             socket.close();
             printStats();
-
         } catch (UnknownHostException e) {
             System.err.println("UnknownHostException => " + e.getMessage());
         } catch (IllegalArgumentException e) {
@@ -146,18 +147,18 @@ public class FieldUnit implements IFieldUnit {
             System.out.println("Usage: ./fieldunit.sh <UDP rcv port> <RMI server HostName/IPAddress>");
             return;
         }
-        /* Parse arguments */
-        int port = Integer.parseInt(args[0]);
-        String address = args[1];
-
         /* Construct Field Unit Object */
         FieldUnit field_unit = new FieldUnit();
+
+        /* Parse arguments */
+        field_unit.port = Integer.parseInt(args[0]);
+        String address = args[1];
 
         /* Call initRMI on the Field Unit Object */
         field_unit.initRMI(address);
 
         /* Wait for incoming transmission */
-        field_unit.receiveMeasures(port, field_unit.timeout);
+        field_unit.receiveMeasures(field_unit.port, field_unit.timeout);
 
         /* Compute Averages - call sMovingAverage()
             on Field Unit object */
@@ -173,11 +174,16 @@ public class FieldUnit implements IFieldUnit {
 
     @Override
     public void initRMI (String address) {
-        /* Bind to RMIServer */
         try {
-            this.registry = LocateRegistry.getRegistry(9999);
+            Registry registry = LocateRegistry.getRegistry(address, this.port);
+            
+            // Bind to RMIServer 
+            this.central_server = (ICentralServer) registry.lookup("CentralServer");
      
             /* Send pointer to LocationSensor to RMI Server */
+            LocationSensor loc = new LocationSensor();
+            this.central_server.setLocationSensor(loc);
+
         } catch (Exception e) {
             System.err.println("Exception => " + e.getMessage());
         }
@@ -185,10 +191,10 @@ public class FieldUnit implements IFieldUnit {
 
     @Override
     public void sendAverages () {
+
+        System.out.printf("[Field Unit] Sending SMAs to RMI");
         /* Attempt to send messages the specified number of times */
         try {
-            this.central_server = (ICentralServer) this.registry.lookup("CentralServer"); // how to get a pointer
-
             for(int i = 0; i < this.expected; i++){
                 MessageInfo msg = new MessageInfo(this.movingAverages.size(), i, this.movingAverages.get(i));
                 central_server.receiveMsg(msg);
@@ -200,31 +206,36 @@ public class FieldUnit implements IFieldUnit {
 
     @Override
     public void printStats () {
-        System.out.printf("Total missing messages %d out of %d \n", 
-        this.expected - this.counter, this.expected);
+        try{
+            System.out.printf("Total missing messages %d out of %d \n", 
+            this.expected - this.counter, this.expected);
 
-        ArrayList<Integer> unreceivedMessages = new ArrayList<Integer>();
-        for(int j = 1; j <= this.expected; j++){
-            Boolean found = false;
-            for(int i = 0; i < this.receivedMessages.size(); i++){
-                if(this.receivedMessages.get(i).getMessageNum() == j){
-                    found = true;
-                    break;
+            ArrayList<Integer> unreceivedMessages = new ArrayList<Integer>();
+            for(int j = 1; j <= this.expected; j++){
+                Boolean found = false;
+                for(int i = 0; i < this.receivedMessages.size(); i++){
+                    if(this.receivedMessages.get(i).getMessageNum() == j){
+                        found = true;
+                        break;
+                    }
                 }
+            
+                if(!found){
+                    unreceivedMessages.add(j); 
+                }    
             }
-        
-            if(!found){
-                unreceivedMessages.add(j); 
-            }    
+
+            System.out.println("The messages that were lost are the following: " + 
+                    unreceivedMessages);
+            System.out.println("===============================");
+
+            /* Re-initialise data structures for next time */
+            this.expected = 0;
+            this.counter = 0;
+            this.receivedMessages = new ArrayList<>();
+            this.receiveMeasures(this.port, this.timeout);
+        } catch(SocketException e){
+            System.err.println("SocketException => " + e.getMessage());
         }
-
-        System.out.println("The messages that were lost are the following: " + 
-                unreceivedMessages);
-        System.out.println("===============================");
-
-        /* Re-initialise data structures for next time */
-        this.expected = 0;
-        this.counter = 0;
-        this.receivedMessages = new ArrayList<>();
     }
 }
