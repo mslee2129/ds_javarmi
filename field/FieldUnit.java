@@ -176,7 +176,7 @@ public class FieldUnit implements IFieldUnit {
     @Override
     public void initRMI (String address) {
         try {
-            String rmiUrl = new String("rmi://127.0.0.1:1099/CentralServer");
+            String rmiUrl = new String("rmi://146.169.52.110:1099/CentralServer");
 
             // Bind to RMIServer 
             this.central_server = (ICentralServer) Naming.lookup(rmiUrl);

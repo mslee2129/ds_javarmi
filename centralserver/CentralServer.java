@@ -50,7 +50,7 @@ public class CentralServer implements ICentralServer {
             Registry reg = LocateRegistry.createRegistry(1099);
             
             try{
-            Naming.rebind("rmi://127.0.0.1:1099/CentralServer", stub);
+            Naming.rebind("rmi://localhost:1099/CentralServer", stub);
             } catch(Exception e){
                 System.err.println("Ah shit => " + e.getMessage());
             }
