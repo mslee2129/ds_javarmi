@@ -177,7 +177,7 @@ public class FieldUnit implements IFieldUnit {
         try {
             System.err.println("??????????????????????");
             Registry registry = LocateRegistry.getRegistry(address, this.port);
-            
+            System.err.println("CCCCCCC");
             // Bind to RMIServer 
             this.central_server = (ICentralServer) registry.lookup("CentralServer");
             System.err.println("AAAAAAAAAAAAAAAA");
