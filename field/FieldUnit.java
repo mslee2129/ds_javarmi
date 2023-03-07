@@ -125,8 +125,9 @@ public class FieldUnit implements IFieldUnit {
 
                 addMessage(message); // save message
                 
+                System.out.println(counter);
                 // if count reaches total, break
-                if(counter >= expected) { break; }
+                if(counter >= expected) { listen = false; }
             }
             socket.close();
             printStats();
@@ -200,6 +201,7 @@ public class FieldUnit implements IFieldUnit {
     public void sendAverages () {
 
         System.out.println("[Field Unit] Sending SMAs to RMI");
+
         /* Attempt to send messages the specified number of times */
         try {
             for(int i = 0; i < this.expected; i++){
