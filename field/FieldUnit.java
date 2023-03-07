@@ -18,6 +18,9 @@ import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 
  /* You can add/change/delete class attributes if you think it would be
   * appropriate.
@@ -175,9 +178,19 @@ public class FieldUnit implements IFieldUnit {
 
         /* System.setProperty("java.security.policy","file:./policy\n"); */
 
-        /* TODO: Initialise Security Manager */
-
         /* TODO: Bind to RMIServer */
+        try {
+            String name = "Compute";
+            FieldUnit engine = new FieldUnit();
+            FieldUnit stub =
+                (FieldUnit) UnicastRemoteObject.exportObject(engine, 0);
+            Registry registry = LocateRegistry.getRegistry();
+            registry.bind(name, stub);
+            System.out.println("FieldUnit bound");
+        } catch (Exception e) {
+            System.err.println("FieldUnit exception:");
+            e.printStackTrace();
+        }
 
         /* TODO: Send pointer to LocationSensor to RMI Server */
 
