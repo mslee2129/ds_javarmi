@@ -125,7 +125,6 @@ public class FieldUnit implements IFieldUnit {
 
                 addMessage(message); // save message
                 
-                System.out.println(counter);
                 // if count reaches total, break
                 if(counter >= expected) { listen = false; }
             }
@@ -173,6 +172,13 @@ public class FieldUnit implements IFieldUnit {
         /* Send data to the Central Serve via RMI and
                 wait for incoming transmission again*/
         field_unit.sendAverages();
+
+        // Ready to listen again
+        try{
+        field_unit.receiveMeasures(field_unit.port, field_unit.timeout);
+        } catch(SocketException e){
+            System.err.println("SocketException => " + e.getMessage());
+        }
     }
 
     @Override
@@ -215,36 +221,32 @@ public class FieldUnit implements IFieldUnit {
 
     @Override
     public void printStats () {
-        try{
-            System.out.printf("Total missing messages %d out of %d \n", 
-            this.expected - this.counter, this.expected);
+        
+        System.out.printf("Total missing messages %d out of %d \n", 
+        this.expected - this.counter, this.expected);
 
-            ArrayList<Integer> unreceivedMessages = new ArrayList<Integer>();
-            for(int j = 1; j <= this.expected; j++){
-                Boolean found = false;
-                for(int i = 0; i < this.receivedMessages.size(); i++){
-                    if(this.receivedMessages.get(i).getMessageNum() == j){
-                        found = true;
-                        break;
-                    }
+        ArrayList<Integer> unreceivedMessages = new ArrayList<Integer>();
+        for(int j = 1; j <= this.expected; j++){
+            Boolean found = false;
+            for(int i = 0; i < this.receivedMessages.size(); i++){
+                if(this.receivedMessages.get(i).getMessageNum() == j){
+                    found = true;
+                    break;
                 }
-            
-                if(!found){
-                    unreceivedMessages.add(j); 
-                }    
             }
-
-            System.out.println("The messages that were lost are the following: " + 
-                    unreceivedMessages);
-            System.out.println("===============================");
-
-            /* Re-initialise data structures for next time */
-            this.expected = 0;
-            this.counter = 0;
-            this.receivedMessages = new ArrayList<>();
-            this.receiveMeasures(this.port, this.timeout);
-        } catch(SocketException e){
-            System.err.println("SocketException => " + e.getMessage());
+        
+            if(!found){
+                unreceivedMessages.add(j); 
+            }    
         }
-    }
+
+        System.out.println("The messages that were lost are the following: " + 
+                unreceivedMessages);
+        System.out.println("===============================");
+
+        /* Re-initialise data structures for next time */
+        this.expected = 0;
+        this.counter = 0;
+        this.receivedMessages = new ArrayList<>();
+    } 
 }
