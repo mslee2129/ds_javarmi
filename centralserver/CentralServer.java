@@ -50,26 +50,18 @@ public class CentralServer implements ICentralServer {
 
             /* Create (or Locate) Registry */
             Registry registry = LocateRegistry.createRegistry(9999);
-            Naming.rebind("CentralServer", cs);
-            
-            ICentralServer stub = (ICentralServer) UnicastRemoteObject.exportObject(cs, 9999);
 
-            System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            // ICentralServer stub = (ICentralServer) UnicastRemoteObject.exportObject(cs, 9999);
             
-            /* Bind to Registry */
-            
-            registry.rebind("CentralServer", stub);
-            
-            System.err.println("!!!!xxxxxxxx!!!!!!!!");
+            /* Bind to Registry */        
+            registry.rebind("CentralServer", cs);
             
             // Central server readt
             System.out.println("Central Server ready"); 
 
             // Set Location Sensor
             cs.setLocationSensor(cs.locationSensor);
-        
-        } catch(MalformedURLException e){
-            System.err.println("MalformedURLException  => " + e.getMessage());
+    
         } catch (AccessException e) {
             System.err.println("AccessException => " + e.getMessage());
         } catch (RemoteException e) {

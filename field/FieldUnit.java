@@ -201,7 +201,7 @@ public class FieldUnit implements IFieldUnit {
     @Override
     public void sendAverages () {
 
-        System.out.printf("[Field Unit] Sending SMAs to RMI");
+        System.out.println("[Field Unit] Sending SMAs to RMI");
         /* Attempt to send messages the specified number of times */
         try {
             for(int i = 0; i < this.expected; i++){
