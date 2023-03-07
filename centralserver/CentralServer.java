@@ -3,7 +3,6 @@ package centralserver;
 import common.*;
 import field.ILocationSensor;
 
-import java.net.MalformedURLException;
 import java.rmi.AccessException;
 import java.rmi.AlreadyBoundException;
 import java.rmi.Naming;
