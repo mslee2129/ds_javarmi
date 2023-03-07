@@ -175,15 +175,16 @@ public class FieldUnit implements IFieldUnit {
     @Override
     public void initRMI (String address) {
         try {
+            System.err.println("??????????????????????");
             Registry registry = LocateRegistry.getRegistry(address, this.port);
             
             // Bind to RMIServer 
             this.central_server = (ICentralServer) registry.lookup("CentralServer");
-     
+            System.err.println("AAAAAAAAAAAAAAAA");
             /* Send pointer to LocationSensor to RMI Server */
             LocationSensor loc = new LocationSensor();
             this.central_server.setLocationSensor(loc);
-
+            System.err.println("BBBBBBVBB");
         } catch (Exception e) {
             System.err.println("Exception => " + e.getMessage());
         }
