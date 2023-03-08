@@ -117,8 +117,8 @@ public class FieldUnit implements IFieldUnit {
                 MessageInfo message = new MessageInfo(messageString);
 
                 // if first message, set expected to total
-                if(expected == 0) { expected = message.getTotalMessages();   System.out.println("Excepted is Set"); }
-                counter++; // increment counter
+                if(this.expected == 0) { this.expected = message.getTotalMessages();   System.out.println("Excepted is Set"); }
+                this.counter++; // increment counter
 
                 System.out.printf("[UDP Controller] Message %d out of %d " +
                                 "received. Value = %f\n", message.getMessageNum(),
@@ -127,7 +127,7 @@ public class FieldUnit implements IFieldUnit {
                 addMessage(message); // save message
                 
                 // if count reaches total, break
-                if(counter >= expected) { listen = false; }
+                if(this.counter >= this.expected) { listen = false; }
             }
             socket.close();
             printStats();
