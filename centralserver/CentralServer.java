@@ -71,8 +71,14 @@ public class CentralServer implements ICentralServer {
     @Override
     public void receiveMsg (MessageInfo msg) {
         try{
+            long start_time = 0;
+
             //  If first message:, initialise expected
-            if(this.expected == 0) {this.expected = msg.getTotalMessages();}
+            if(this.expected == 0) {
+                this.expected = msg.getTotalMessages();
+                // set timer after having received the first packet
+                start_time = System.currentTimeMillis();
+        }
             this.counter++; // increment counter
 
             System.err.println("[Central Server] Received message " + 
@@ -85,6 +91,11 @@ public class CentralServer implements ICentralServer {
             // If done with receiving prints stats.
             if(this.counter == msg.getTotalMessages()){
                 this.printStats();
+
+                long end_time = System.currentTimeMillis();
+                long total_time = end_time - start_time;
+                System.out.printf("Time taken to receive all UDP packets: %d \n", 
+                total_time);
             }
         // change exception
         } catch(Exception e){

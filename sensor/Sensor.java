@@ -47,6 +47,7 @@ public class Sensor implements ISensor {
     public void run (int N) throws InterruptedException {
         for(int i = 1; i <= N; i++){
             this.measurement = getMeasurement();
+            
             MessageInfo msg = new MessageInfo(N, i, this.measurement);
             sendMessage(this.address, this.port, msg);
 

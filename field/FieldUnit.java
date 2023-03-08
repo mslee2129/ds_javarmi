@@ -91,6 +91,8 @@ public class FieldUnit implements IFieldUnit {
 
     @Override
     public void receiveMeasures(int port, int timeout) throws SocketException {
+        long start_time = 0;
+
         try {
             // create new socket
             DatagramSocket socket = new DatagramSocket(port);
@@ -113,6 +115,7 @@ public class FieldUnit implements IFieldUnit {
 
                 // receive packet in socket
                 socket.receive(receivePacket);
+
                 String messageString = new String(receivePacket.getData());
 
                 MessageInfo message = new MessageInfo(messageString);
@@ -120,6 +123,8 @@ public class FieldUnit implements IFieldUnit {
                 // if first message, set expected to total
                 if(this.expected == 0) { 
                     this.expected = message.getTotalMessages(); 
+                    // set timer after having received the first packet
+                    start_time = System.currentTimeMillis();
                 }
 
                 this.counter++; // increment counter
@@ -133,8 +138,16 @@ public class FieldUnit implements IFieldUnit {
                 // if count reaches total, break
                 if(this.counter >= this.expected) { listen = false; }
             }
+            long end_time = System.currentTimeMillis();
+
             socket.close();
+
             printStats();
+            
+            long total_time = end_time - start_time;
+            System.out.printf("Time taken to receive all UDP packets: %d \n", 
+            total_time);
+    
         } catch (UnknownHostException e) {
             System.err.println("UnknownHostException => " + e.getMessage());
         } catch (IllegalArgumentException e) {
