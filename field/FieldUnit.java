@@ -78,7 +78,6 @@ public class FieldUnit implements IFieldUnit {
                         sum += receivedMessages.get(i-j).getMessage();
                     }
                     this.movingAverages.add(sum/k);
-                    System.out.println(this.movingAverages.add(sum/k));
                 }
                 
             }
@@ -211,11 +210,10 @@ public class FieldUnit implements IFieldUnit {
     public void sendAverages () {
 
         System.out.println("[Field Unit] Sending SMAs to RMI");
-        System.out.println(this.movingAverages);
 
         /* Attempt to send messages the specified number of times */
         try {
-            for(int i = 0; i < this.expected; i++){
+            for(int i = 0; i < this.movingAverages.size(); i++){
                 MessageInfo msg = new MessageInfo(this.movingAverages.size(), i, this.movingAverages.get(i));
                 this.central_server.receiveMsg(msg);
             }
