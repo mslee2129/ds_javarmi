@@ -200,6 +200,7 @@ public class FieldUnit implements IFieldUnit {
     public void sendAverages () {
 
         System.out.println("[Field Unit] Sending SMAs to RMI");
+        System.out.println(this.movingAverages);
 
         /* Attempt to send messages the specified number of times */
         try {

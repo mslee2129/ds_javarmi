@@ -75,7 +75,7 @@ public class CentralServer implements ICentralServer {
             if(this.expected == 0) {this.expected = msg.getTotalMessages();}
             this.counter++; // increment counter
 
-            System.out.println("[Central Server] Received message " + 
+            System.err.println("[Central Server] Received message " + 
                 (msg.getMessageNum()) + " out of " + msg.getTotalMessages() +
                     ". Measure = " + msg.getMessage());
                 
