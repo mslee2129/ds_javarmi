@@ -168,7 +168,7 @@ public class FieldUnit implements IFieldUnit {
         /* Call initRMI on the Field Unit Object */
         field_unit.initRMI(address);
 
-        while(true){
+        // while(true){
             /* Wait for incoming transmission */
             field_unit.receiveMeasures(field_unit.port, field_unit.timeout);
         
@@ -182,7 +182,7 @@ public class FieldUnit implements IFieldUnit {
 
             /* Re-initialise data structures for next time */
             field_unit.reset();
-        }
+        // }
     }
 
     public void reset () { // Resets attributes for next UDP reception
