@@ -169,7 +169,7 @@ public class FieldUnit implements IFieldUnit {
 
         /* Wait for incoming transmission */
         field_unit.receiveMeasures(field_unit.port, field_unit.timeout);
-
+        System.out.println(field_unit.expected);
         /* Compute Averages - call sMovingAverage()
             on Field Unit object */
         field_unit.sMovingAverage(7);
