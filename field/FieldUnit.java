@@ -168,25 +168,20 @@ public class FieldUnit implements IFieldUnit {
         /* Call initRMI on the Field Unit Object */
         field_unit.initRMI(address);
 
-        /* Wait for incoming transmission */
-        field_unit.receiveMeasures(field_unit.port, field_unit.timeout);
-    
-        /* Compute Averages - call sMovingAverage()
-            on Field Unit object */
-        field_unit.sMovingAverage(field_unit.size_MA);
+        while(true){
+            /* Wait for incoming transmission */
+            field_unit.receiveMeasures(field_unit.port, field_unit.timeout);
+        
+            /* Compute Averages - call sMovingAverage()
+                on Field Unit object */
+            field_unit.sMovingAverage(field_unit.size_MA);
 
-        /* Re-initialise data structures for next time */
-        field_unit.reset();
+            /* Send data to the Central Serve via RMI and
+                    wait for incoming transmission again*/
+            field_unit.sendAverages();
 
-        /* Send data to the Central Serve via RMI and
-                wait for incoming transmission again*/
-        field_unit.sendAverages();
-
-        // Ready to listen again
-        try{
-        field_unit.receiveMeasures(field_unit.port, field_unit.timeout);
-        } catch(SocketException e){
-            System.err.println("SocketException => " + e.getMessage());
+            /* Re-initialise data structures for next time */
+            field_unit.reset();
         }
     }
 
