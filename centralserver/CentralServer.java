@@ -3,20 +3,17 @@ package centralserver;
 import common.*;
 import field.ILocationSensor;
 
+import java.net.MalformedURLException;
 import java.rmi.AccessException;
-import java.rmi.AlreadyBoundException;
 import java.rmi.Naming;
 /*
  * Updated on Feb 2023
  */
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.text.html.CSS;
 
  /* You can add/change/delete class attributes if you think it would be
   * appropriate.
@@ -49,16 +46,13 @@ public class CentralServer implements ICentralServer {
             CentralServer cs = new CentralServer();
             ICentralServer stub = (ICentralServer) UnicastRemoteObject.exportObject(cs, 1099);
             LocateRegistry.createRegistry(1099);
-            
-            try{
             Naming.rebind("rmi://localhost:1099/CentralServer", stub);
-            } catch(Exception e){
-                System.err.println("Ah shit => " + e.getMessage());
-            }
-            
+
             // Central server readt
             System.out.println("Central Server ready"); 
     
+        } catch(MalformedURLException e){
+            System.err.println("MalformedURLException => " + e.getMessage());
         } catch (AccessException e) {
             System.err.println("AccessException => " + e.getMessage());
         } catch (RemoteException e) {
@@ -76,7 +70,6 @@ public class CentralServer implements ICentralServer {
             if(this.expected == 0) {
                 // set timer after having received the first packet
                 this.start_time = System.currentTimeMillis();
-                System.err.println(this.start_time);
                 this.expected = msg.getTotalMessages();
             }
             this.counter++; // increment counter
@@ -91,7 +84,6 @@ public class CentralServer implements ICentralServer {
             // If done with receiving prints stats.
             if(this.counter == msg.getTotalMessages()){
                 long end_time = System.currentTimeMillis();
-                System.err.println(end_time);
                 
                 this.printStats();
 
@@ -99,7 +91,6 @@ public class CentralServer implements ICentralServer {
                 System.out.printf("Time taken to receive all RMI packets (in ms): %d \n", 
                 total_time);
             }
-        // change exception
         } catch(Exception e){
             System.err.println("Exception => " + e.getMessage());
         }

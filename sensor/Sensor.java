@@ -23,7 +23,6 @@ public class Sensor implements ISensor {
     private final static int max_measure = 50;
     private final static int min_measure = 10;
 
-    private DatagramSocket s;
     private byte[] buffer;
 
     /* Note: Could you discuss in one line of comment what do you think can be
@@ -41,20 +40,6 @@ public class Sensor implements ISensor {
         this.port = port;
         this.totMsg = totMsg;
         this.measurement = 0;
-    }
-
-    @Override  // TO DO THROW THE INTERRUPTED EXCEPTION
-    public void run (int N) throws InterruptedException {
-        for(int i = 1; i <= N; i++){
-            this.measurement = getMeasurement();
-            
-            MessageInfo msg = new MessageInfo(N, i, this.measurement);
-            sendMessage(this.address, this.port, msg);
-
-            // Print update
-            System.out.printf("[Sensor] Sending message %d out of %d." +
-                            " Measure = %f \n", i, N, msg.getMessage());
-        }
     }
 
     public static void main (String[] args) {
@@ -79,6 +64,20 @@ public class Sensor implements ISensor {
         }
     }
 
+    @Override  // TO DO THROW THE INTERRUPTED EXCEPTION
+    public void run (int N) throws InterruptedException {
+        for(int i = 1; i <= N; i++){
+            this.measurement = getMeasurement();
+            
+            MessageInfo msg = new MessageInfo(N, i, this.measurement);
+            sendMessage(this.address, this.port, msg);
+
+            // Print update
+            System.out.printf("[Sensor] Sending message %d out of %d." +
+                            " Measure = %f \n", i, N, msg.getMessage());
+        }
+    }
+
     @Override
     public void sendMessage (String dstAddress, int dstPort, MessageInfo msg) {
         try {
@@ -86,7 +85,8 @@ public class Sensor implements ISensor {
             DatagramSocket socket = new DatagramSocket();
 
             // save message to buffer
-            byte[] message = msg.toString().getBytes(StandardCharsets.UTF_8);
+            byte[] message = new byte[buffsize];
+            message = msg.toString().getBytes(StandardCharsets.UTF_8);
 
             // get address and port
             InetAddress address = InetAddress.getByName(dstAddress);

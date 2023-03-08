@@ -4,25 +4,20 @@ package field;
  */
 import centralserver.ICentralServer;
 import common.MessageInfo;
-import field.ILocationSensor;
-import field.LocationSensor;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.MalformedURLException;
 import java.net.SocketException;
-import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.rmi.AccessException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
  /* You can add/change/delete class attributes if you think it would be
@@ -43,13 +38,15 @@ public class FieldUnit implements IFieldUnit {
      */
 
     private static final int buffsize = 2048;
+
     private int timeout = 50000;
     protected int expected = 0;
     protected int counter = 0;
     protected int port;
+    protected int size_MA = 7;
+
     protected List<MessageInfo> receivedMessages;
     protected List<Float> movingAverages;
-
 
     public FieldUnit () {
         this.receivedMessages = new ArrayList<>();
@@ -74,20 +71,17 @@ public class FieldUnit implements IFieldUnit {
                 else {
                     float sum = 0;
                     for(int j = 0; j < k; j++) {
-                        // reconsider at some point
                         sum += receivedMessages.get(i-j).getMessage();
                     }
                     this.movingAverages.add(sum/k);
                 }
-                
             }
-            
         } catch (UnsupportedOperationException e) {
             System.err.println("UnsupportedOperationException => " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Exception => " + e.getMessage());
         }
     }
-
-
 
     @Override
     public void receiveMeasures(int port, int timeout) throws SocketException {
@@ -120,11 +114,9 @@ public class FieldUnit implements IFieldUnit {
 
                 MessageInfo message = new MessageInfo(messageString);
 
-                // if first message, set expected to total
+                // if first message, set expected to total, and set start_time
                 if(this.expected == 0) { 
-                    // set timer after having received the first packet
                     start_time = System.currentTimeMillis();
-
                     this.expected = message.getTotalMessages(); 
                 }
 
@@ -140,7 +132,6 @@ public class FieldUnit implements IFieldUnit {
                 if(this.counter >= this.expected) { listen = false; }
             }
             long end_time = System.currentTimeMillis();
-
             socket.close();
 
             printStats();
@@ -160,7 +151,6 @@ public class FieldUnit implements IFieldUnit {
         } catch (Exception e) {
             System.err.println("Exception => " + e.getMessage());
         }
-
     }
 
     public static void main (String[] args) throws SocketException {
@@ -183,12 +173,10 @@ public class FieldUnit implements IFieldUnit {
     
         /* Compute Averages - call sMovingAverage()
             on Field Unit object */
-        field_unit.sMovingAverage(7);
+        field_unit.sMovingAverage(field_unit.size_MA);
 
         /* Re-initialise data structures for next time */
-        field_unit.expected = 0;
-        field_unit.counter = 0;
-        field_unit.receivedMessages = new ArrayList<>();
+        field_unit.reset();
 
         /* Send data to the Central Serve via RMI and
                 wait for incoming transmission again*/
@@ -202,9 +190,15 @@ public class FieldUnit implements IFieldUnit {
         }
     }
 
+    public void reset () { // Resets attributes for next UDP reception
+        this.expected = 0;
+        this.counter = 0;
+        this.receivedMessages = new ArrayList<>();
+    }
+
     @Override
     public void initRMI (String address) {
-        try {
+        try{
             String rmiUrl = new String("rmi://"+address+":1099/CentralServer");
 
             // Bind to RMIServer 
@@ -214,24 +208,32 @@ public class FieldUnit implements IFieldUnit {
             LocationSensor loc = new LocationSensor();
             ILocationSensor iloc = (ILocationSensor) UnicastRemoteObject.exportObject(loc, 1099);
             this.central_server.setLocationSensor(iloc);
-
-        } catch (Exception e) {
+        } catch(NotBoundException e){
+            System.err.println("NotBoundException => " + e.getMessage());
+        } catch(AccessException e){
+            System.err.println("AccessException => " + e.getMessage());
+        } catch(MalformedURLException e){
+            System.err.println("MalformedURLException => " + e.getMessage());
+        } catch(RemoteException e){
+            System.err.println("RemoteException => " + e.getMessage());
+        } catch(Exception e){
             System.err.println("Exception => " + e.getMessage());
         }
     }
 
     @Override
     public void sendAverages () {
+        try{
+            System.out.println("[Field Unit] Sending SMAs to RMI");
 
-        System.out.println("[Field Unit] Sending SMAs to RMI");
-
-        /* Attempt to send messages the specified number of times */
-        try {
+            /* Attempt to send messages the specified number of times */
             for(int i = 0; i < this.movingAverages.size(); i++){
                 MessageInfo msg = new MessageInfo(this.movingAverages.size(), i+1, this.movingAverages.get(i));
                 this.central_server.receiveMsg(msg);
             }
-        } catch (Exception e) {
+        } catch(RemoteException e){
+            System.err.println("RemoteException => " + e.getMessage());
+        } catch(Exception e){
             System.err.println("Exception => " + e.getMessage());
         }
     }
@@ -251,12 +253,12 @@ public class FieldUnit implements IFieldUnit {
                     break;
                 }
             }
-        
             if(!found){
                 unreceivedMessages.add(j); 
             }    
         }
 
+        // Print ID of lost messages
         System.out.println("The messages that were lost are the following: " + 
                 unreceivedMessages);
         System.out.println("===============================");
