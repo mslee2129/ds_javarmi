@@ -75,9 +75,10 @@ public class CentralServer implements ICentralServer {
 
             //  If first message:, initialise expected
             if(this.expected == 0) {
-                this.expected = msg.getTotalMessages();
                 // set timer after having received the first packet
-                start_time = System.currentTimeMillis();
+                start_time = System.nanoTime();
+
+                this.expected = msg.getTotalMessages();
             }
             this.counter++; // increment counter
 
@@ -90,11 +91,12 @@ public class CentralServer implements ICentralServer {
 
             // If done with receiving prints stats.
             if(this.counter == msg.getTotalMessages()){
-                long end_time = System.currentTimeMillis();
+                long end_time = System.nanoTime();
+
                 this.printStats();
-                
+
                 long total_time = end_time - start_time;
-                System.out.printf("Time taken to receive all RMI packets (in ms): %d \n", 
+                System.out.printf("Time taken to receive all RMI packets (in ns): %d \n", 
                 total_time);
             }
         // change exception
