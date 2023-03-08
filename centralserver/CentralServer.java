@@ -83,7 +83,7 @@ public class CentralServer implements ICentralServer {
             this.receivedMessages.add(msg);
 
             // If done with receiving prints stats.
-            if(this.expected == msg.getTotalMessages()){
+            if(this.counter == msg.getTotalMessages()){
                 this.printStats();
             }
         // change exception
