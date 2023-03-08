@@ -213,8 +213,8 @@ public class FieldUnit implements IFieldUnit {
 
         /* Attempt to send messages the specified number of times */
         try {
-            for(int i = 1; i < this.movingAverages.size()+1; i++){
-                MessageInfo msg = new MessageInfo(this.movingAverages.size(), i, this.movingAverages.get(i));
+            for(int i = 0; i < this.movingAverages.size(); i++){
+                MessageInfo msg = new MessageInfo(this.movingAverages.size(), i+1, this.movingAverages.get(i));
                 this.central_server.receiveMsg(msg);
             }
         } catch (Exception e) {
