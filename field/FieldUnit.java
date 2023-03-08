@@ -143,9 +143,9 @@ public class FieldUnit implements IFieldUnit {
             socket.close();
 
             printStats();
-            
+
             long total_time = end_time - start_time;
-            System.out.printf("Time taken to receive all UDP packets: %d \n", 
+            System.out.printf("Time taken to receive all UDP packets (in ms): %d \n", 
             total_time);
     
         } catch (UnknownHostException e) {
