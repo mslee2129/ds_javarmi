@@ -18,6 +18,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 import java.rmi.server.UnicastRemoteObject;
 
  /* You can add/change/delete class attributes if you think it would be
@@ -148,6 +149,7 @@ public class FieldUnit implements IFieldUnit {
             System.err.println("SocketException => " + e.getMessage());
         } catch (IOException e) {
             System.err.println("IOException => " + e.getMessage());
+            System.exit(0); // when it times out
         } catch (Exception e) {
             System.err.println("Exception => " + e.getMessage());
         }
@@ -168,10 +170,10 @@ public class FieldUnit implements IFieldUnit {
         /* Call initRMI on the Field Unit Object */
         field_unit.initRMI(address);
 
-        // while(true){
+        while(true){
             /* Wait for incoming transmission */
             field_unit.receiveMeasures(field_unit.port, field_unit.timeout);
-        
+
             /* Compute Averages - call sMovingAverage()
                 on Field Unit object */
             field_unit.sMovingAverage(field_unit.size_MA);
@@ -182,9 +184,7 @@ public class FieldUnit implements IFieldUnit {
 
             /* Re-initialise data structures for next time */
             field_unit.reset();
-            field_unit.receiveMeasures(field_unit.port, field_unit.timeout);
-
-        // }
+        }
     }
 
     public void reset () { // Resets attributes for next UDP reception
