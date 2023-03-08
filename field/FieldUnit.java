@@ -80,6 +80,7 @@ public class FieldUnit implements IFieldUnit {
                     this.movingAverages.add(sum/k);
                 }
             }
+            System.out.println(this.movingAverages);
         } catch (UnsupportedOperationException e) {
             System.err.println("UnsupportedOperationException => " + e.getMessage());
         }
