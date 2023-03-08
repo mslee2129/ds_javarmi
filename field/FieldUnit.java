@@ -205,7 +205,7 @@ public class FieldUnit implements IFieldUnit {
         try {
             for(int i = 0; i < this.expected; i++){
                 MessageInfo msg = new MessageInfo(this.movingAverages.size(), i, this.movingAverages.get(i));
-                central_server.receiveMsg(msg);
+                this.central_server.receiveMsg(msg);
             }
         } catch (Exception e) {
             System.err.println("Exception => " + e.getMessage());
