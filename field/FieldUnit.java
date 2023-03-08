@@ -189,6 +189,7 @@ public class FieldUnit implements IFieldUnit {
         this.expected = 0;
         this.counter = 0;
         this.receivedMessages = new ArrayList<>();
+        this.movingAverages = new ArrayList<>();
     }
 
     @Override
