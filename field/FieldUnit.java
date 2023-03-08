@@ -69,6 +69,7 @@ public class FieldUnit implements IFieldUnit {
         try {
             for(int i = 0; i < this.expected; i++) {
                 if(i < k) {
+                    System.out.println(receivedMessages.get(i).getMessage());
                     this.movingAverages.add(receivedMessages.get(i).getMessage());
                 }
                 else {
@@ -78,7 +79,9 @@ public class FieldUnit implements IFieldUnit {
                         sum += receivedMessages.get(i-j).getMessage();
                     }
                     this.movingAverages.add(sum/k);
+                    System.out.println(this.movingAverages.add(sum/k));
                 }
+                System.out.println(this.movingAverages);
             }
             System.out.println(this.movingAverages);
         } catch (UnsupportedOperationException e) {
@@ -117,14 +120,17 @@ public class FieldUnit implements IFieldUnit {
                 MessageInfo message = new MessageInfo(messageString);
 
                 // if first message, set expected to total
-                if(this.expected == 0) { this.expected = message.getTotalMessages();   System.out.println("Excepted is Set"); }
+                if(this.expected == 0) { 
+                    this.expected = message.getTotalMessages(); 
+                }
+
                 this.counter++; // increment counter
 
                 System.out.printf("[UDP Controller] Message %d out of %d " +
                                 "received. Value = %f\n", message.getMessageNum(),
                                 this.expected, message.getMessage());
 
-                addMessage(message); // save message
+                this.addMessage(message); // save message
                 
                 // if count reaches total, break
                 if(this.counter >= this.expected) { listen = false; }
