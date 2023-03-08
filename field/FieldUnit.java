@@ -122,9 +122,10 @@ public class FieldUnit implements IFieldUnit {
 
                 // if first message, set expected to total
                 if(this.expected == 0) { 
-                    this.expected = message.getTotalMessages(); 
                     // set timer after having received the first packet
-                    start_time = System.nanoTime();
+                    start_time = System.currentTimeMillis();
+
+                    this.expected = message.getTotalMessages(); 
                 }
 
                 this.counter++; // increment counter
@@ -138,14 +139,14 @@ public class FieldUnit implements IFieldUnit {
                 // if count reaches total, break
                 if(this.counter >= this.expected) { listen = false; }
             }
-            long end_time = System.nanoTime();
+            long end_time = System.currentTimeMillis();
 
             socket.close();
 
             printStats();
 
             long total_time = end_time - start_time;
-            System.out.printf("Time taken to receive all UDP packets (in ns): %d \n", 
+            System.out.printf("Time taken to receive all UDP packets (in ms): %d \n", 
             total_time);
     
         } catch (UnknownHostException e) {

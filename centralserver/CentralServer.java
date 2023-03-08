@@ -47,7 +47,7 @@ public class CentralServer implements ICentralServer {
         try{
             CentralServer cs = new CentralServer();
             ICentralServer stub = (ICentralServer) UnicastRemoteObject.exportObject(cs, 1099);
-            Registry reg = LocateRegistry.createRegistry(1099);
+            LocateRegistry.createRegistry(1099);
             
             try{
             Naming.rebind("rmi://localhost:1099/CentralServer", stub);
@@ -76,8 +76,8 @@ public class CentralServer implements ICentralServer {
             //  If first message:, initialise expected
             if(this.expected == 0) {
                 // set timer after having received the first packet
-                start_time = System.nanoTime();
-
+                start_time = System.currentTimeMillis();
+                System.err.println(start_time);
                 this.expected = msg.getTotalMessages();
             }
             this.counter++; // increment counter
@@ -91,12 +91,13 @@ public class CentralServer implements ICentralServer {
 
             // If done with receiving prints stats.
             if(this.counter == msg.getTotalMessages()){
-                long end_time = System.nanoTime();
-
+                long end_time = System.currentTimeMillis();
+                System.err.println(end_time);
+                
                 this.printStats();
 
                 long total_time = end_time - start_time;
-                System.out.printf("Time taken to receive all RMI packets (in ns): %d \n", 
+                System.out.printf("Time taken to receive all RMI packets (in ms): %d \n", 
                 total_time);
             }
         // change exception
