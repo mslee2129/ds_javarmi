@@ -67,10 +67,8 @@ public class FieldUnit implements IFieldUnit {
 
         /* Compute SMA and store values in a class attribute */
         try {
-            System.out.println(this.expected);
             for(int i = 0; i < this.expected; i++) {
                 if(i < k) {
-                    System.out.println(receivedMessages.get(i).getMessage());
                     this.movingAverages.add(receivedMessages.get(i).getMessage());
                 }
                 else {
@@ -82,9 +80,9 @@ public class FieldUnit implements IFieldUnit {
                     this.movingAverages.add(sum/k);
                     System.out.println(this.movingAverages.add(sum/k));
                 }
-                System.out.println(this.movingAverages);
+                
             }
-            System.out.println(this.movingAverages);
+            
         } catch (UnsupportedOperationException e) {
             System.err.println("UnsupportedOperationException => " + e.getMessage());
         }
@@ -169,10 +167,15 @@ public class FieldUnit implements IFieldUnit {
 
         /* Wait for incoming transmission */
         field_unit.receiveMeasures(field_unit.port, field_unit.timeout);
-        System.out.println(field_unit.expected);
+    
         /* Compute Averages - call sMovingAverage()
             on Field Unit object */
         field_unit.sMovingAverage(7);
+
+        /* Re-initialise data structures for next time */
+        field_unit.expected = 0;
+        field_unit.counter = 0;
+        field_unit.receivedMessages = new ArrayList<>();
 
         /* Send data to the Central Serve via RMI and
                 wait for incoming transmission again*/
@@ -245,10 +248,5 @@ public class FieldUnit implements IFieldUnit {
         System.out.println("The messages that were lost are the following: " + 
                 unreceivedMessages);
         System.out.println("===============================");
-
-        /* Re-initialise data structures for next time */
-        this.expected = 0;
-        this.counter = 0;
-        this.receivedMessages = new ArrayList<>();
     } 
 }
