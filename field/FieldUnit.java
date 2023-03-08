@@ -67,6 +67,7 @@ public class FieldUnit implements IFieldUnit {
 
         /* Compute SMA and store values in a class attribute */
         try {
+            System.out.println(this.expected);
             for(int i = 0; i < this.expected; i++) {
                 if(i < k) {
                     System.out.println(receivedMessages.get(i).getMessage());
