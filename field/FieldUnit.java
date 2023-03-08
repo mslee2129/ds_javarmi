@@ -182,6 +182,8 @@ public class FieldUnit implements IFieldUnit {
 
             /* Re-initialise data structures for next time */
             field_unit.reset();
+            field_unit.receiveMeasures(field_unit.port, field_unit.timeout);
+
         // }
     }
 
