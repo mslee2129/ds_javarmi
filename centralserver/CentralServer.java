@@ -34,6 +34,7 @@ public class CentralServer implements ICentralServer {
 
     protected int expected = 0;
     protected int counter = 0;
+    protected long start_time = 0;
 
     protected CentralServer () throws RemoteException {
         super();
@@ -71,13 +72,11 @@ public class CentralServer implements ICentralServer {
     @Override
     public void receiveMsg (MessageInfo msg) {
         try{
-            long start_time = 0;
-
             //  If first message:, initialise expected
             if(this.expected == 0) {
                 // set timer after having received the first packet
-                start_time = System.currentTimeMillis();
-                System.err.println(start_time);
+                this.start_time = System.currentTimeMillis();
+                System.err.println(this.start_time);
                 this.expected = msg.getTotalMessages();
             }
             this.counter++; // increment counter
@@ -96,7 +95,7 @@ public class CentralServer implements ICentralServer {
                 
                 this.printStats();
 
-                long total_time = end_time - start_time;
+                long total_time = end_time - this.start_time;
                 System.out.printf("Time taken to receive all RMI packets (in ms): %d \n", 
                 total_time);
             }
